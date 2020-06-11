@@ -1,6 +1,8 @@
 ﻿# Chunky
 
-Chunky is a C# library for processing Speed engine chunk bundles.
+Chunky is a C# library for processing Speed engine chunk bundles. For
+progress information, refer to
+[ROADMAP.md](https://github.com/NFSTools/Chunky/blob/master/ROADMAP.md)
 
 ## Installation
 
