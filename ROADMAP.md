@@ -6,3 +6,4 @@
 - [ ] Implement chunk reading
 - [ ] Basic chunk and bundle writing
 - [ ] Support for compressed chunks
+- [ ] TESTS!
