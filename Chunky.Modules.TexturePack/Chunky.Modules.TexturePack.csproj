@@ -9,4 +9,8 @@
         <PackageReference Include="JetBrains.Annotations" Version="2020.1.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Chunky\Chunky.csproj"/>
+    </ItemGroup>
+
 </Project>
