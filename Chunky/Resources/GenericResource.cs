@@ -1,7 +1,28 @@
 ﻿using System.IO;
+using Chunky.IO;
 
 namespace Chunky.Resources
 {
+    public class GenericResourceWriter : IResourceWriter
+    {
+        private readonly GenericResource _resource;
+
+        public GenericResourceWriter(GenericResource resource)
+        {
+            _resource = resource;
+        }
+
+        public uint GetChunkId()
+        {
+            return _resource.ChunkId;
+        }
+
+        public void Write(ChunkBundleWriter bundleWriter, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(_resource.Data);
+        }
+    }
+
     /// <summary>
     ///     Represents an unknown resource. Data is stored as a byte array.
     /// </summary>
@@ -13,6 +34,11 @@ namespace Chunky.Resources
         public string GetResourceTypeName()
         {
             return "UNKNOWN";
+        }
+
+        public IResourceWriter CreateWriter()
+        {
+            return new GenericResourceWriter(this);
         }
     }
 

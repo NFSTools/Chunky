@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Chunky.Resources;
 
 namespace Chunky.Tests.MostWanted
@@ -8,6 +9,11 @@ namespace Chunky.Tests.MostWanted
         public string GetResourceTypeName()
         {
             return "Shader Information";
+        }
+
+        public IResourceWriter CreateWriter()
+        {
+            throw new NotImplementedException();
         }
 
         public string Name { get; set; }
