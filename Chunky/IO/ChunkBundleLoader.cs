@@ -74,7 +74,8 @@ namespace Chunky.IO
             var id = reader.ReadUInt32();
             var size = reader.ReadInt32();
 
-            if (reader.BaseStream.Position + size > reader.BaseStream.Length)
+            if (id != 0x55441122 /* Don't check chunk size for compressed data */ &&
+                reader.BaseStream.Position + size > reader.BaseStream.Length)
                 throw new ChunkReaderException($"Overflowing chunk detected at {reader.BaseStream.Position - 8}.");
 
             var chunk = new Chunk {Id = id, Size = size, Offset = reader.BaseStream.Position - 8};
