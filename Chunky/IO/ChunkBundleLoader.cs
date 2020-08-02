@@ -14,6 +14,8 @@ namespace Chunky.IO
         private readonly Dictionary<uint, ObjectActivator<IResourceReader>> _resourceReaderDictionary =
             new Dictionary<uint, ObjectActivator<IResourceReader>>();
 
+        private Chunk _lastChunk;
+
         /// <inheritdoc />
         public Bundle LoadBundle(Stream stream)
         {
@@ -69,7 +71,7 @@ namespace Chunky.IO
             return reader.GetResource();
         }
 
-        private Chunk NextChunk(BinaryReader reader)
+        private Chunk NextChunk(BinaryReader reader, bool recursing = false)
         {
             var id = reader.ReadUInt32();
 
@@ -103,14 +105,23 @@ namespace Chunky.IO
 
             var chunk = new Chunk {Id = id, Size = size, Offset = reader.BaseStream.Position - 8};
 
+            if (_lastChunk != null)
+                _lastChunk.NextChunk = chunk;
+
             if (chunk.IsContainer)
                 // Read children
                 while (reader.BaseStream.Position < chunk.EndOffset)
                 {
-                    var nextChunk = NextChunk(reader);
+                    var nextChunk = NextChunk(reader, true);
                     if (nextChunk == null || nextChunk.Id == 0) continue;
                     chunk.Children.Add(nextChunk);
                 }
+
+            if (!recursing)
+            {
+                chunk.PreviousChunk = _lastChunk;
+                _lastChunk = chunk;
+            }
 
             reader.BaseStream.Position = chunk.EndOffset;
             return chunk;

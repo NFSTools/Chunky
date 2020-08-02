@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using Chunky.IO;
 
 namespace Chunky.Resources
@@ -71,6 +72,8 @@ namespace Chunky.Resources
             if (_resource.Data.Length != chunk.Size)
                 throw new ResourceReadException(
                     $"Expected to read {chunk.Size} bytes but only got {_resource.Data.Length}");
+
+            Debug.WriteLine("Current chunk: {0:X8} - previous: {1:X8}", chunk.Id, chunk.PreviousChunk?.Id);
         }
     }
 }

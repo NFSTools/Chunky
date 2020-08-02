@@ -43,5 +43,15 @@ namespace Chunky
         ///     Gets the list of child chunks.
         /// </summary>
         public List<Chunk> Children { get; } = new List<Chunk>();
+
+        /// <summary>
+        ///     Gets or sets the previous chunk.
+        /// </summary>
+        public Chunk PreviousChunk { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the next chunk.
+        /// </summary>
+        public Chunk NextChunk { get; set; }
     }
 }
