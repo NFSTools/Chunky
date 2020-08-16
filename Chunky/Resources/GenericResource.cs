@@ -1,9 +1,27 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 using Chunky.IO;
 
 namespace Chunky.Resources
 {
+    public static class GenericAlignmentHelper
+    {
+        private static readonly Dictionary<uint, int> AlignmentMap = new Dictionary<uint, int>();
+
+        public static void SetAlignment(uint chunkId, int alignment)
+        {
+            AlignmentMap[chunkId] = alignment;
+        }
+
+        public static int GetAlignment(uint chunkId)
+        {
+            return AlignmentMap.TryGetValue(chunkId, out var alignment) ? alignment : 0;
+        }
+    }
+
+    /// <summary>
+    ///     Writer implementation for <see cref="GenericResource" />.
+    /// </summary>
     public class GenericResourceWriter : IResourceWriter
     {
         private readonly GenericResource _resource;
@@ -16,6 +34,11 @@ namespace Chunky.Resources
         public uint GetChunkId()
         {
             return _resource.ChunkId;
+        }
+
+        public int GetAlignment()
+        {
+            return GenericAlignmentHelper.GetAlignment(_resource.ChunkId);
         }
 
         public void Write(ChunkBundleWriter bundleWriter, BinaryWriter binaryWriter)
@@ -72,8 +95,6 @@ namespace Chunky.Resources
             if (_resource.Data.Length != chunk.Size)
                 throw new ResourceReadException(
                     $"Expected to read {chunk.Size} bytes but only got {_resource.Data.Length}");
-
-            Debug.WriteLine("Current chunk: {0:X8} - previous: {1:X8}", chunk.Id, chunk.PreviousChunk?.Id);
         }
     }
 }
