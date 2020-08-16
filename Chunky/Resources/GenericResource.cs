@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
 using Chunky.IO;
 
 namespace Chunky.Resources
@@ -16,6 +18,35 @@ namespace Chunky.Resources
         public static int GetAlignment(uint chunkId)
         {
             return AlignmentMap.TryGetValue(chunkId, out var alignment) ? alignment : 0;
+        }
+    }
+
+    [Serializable]
+    public class UndefinedAlignmentException : Exception
+    {
+        //
+        // For guidelines regarding the creation of new exception types, see
+        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
+        // and
+        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
+        //
+
+        public UndefinedAlignmentException()
+        {
+        }
+
+        public UndefinedAlignmentException(string message) : base(message)
+        {
+        }
+
+        public UndefinedAlignmentException(string message, Exception inner) : base(message, inner)
+        {
+        }
+
+        protected UndefinedAlignmentException(
+            SerializationInfo info,
+            StreamingContext context) : base(info, context)
+        {
         }
     }
 
@@ -38,7 +69,12 @@ namespace Chunky.Resources
 
         public int GetAlignment()
         {
-            return GenericAlignmentHelper.GetAlignment(_resource.ChunkId);
+            var result = GenericAlignmentHelper.GetAlignment(_resource.ChunkId);
+
+            if (result == 0 && _resource.HasPrePadding)
+                throw new UndefinedAlignmentException($"Alignment undefined for chunk: 0x{_resource.ChunkId:X8}");
+
+            return result;
         }
 
         public void Write(ChunkBundleWriter bundleWriter, BinaryWriter binaryWriter)
@@ -54,6 +90,7 @@ namespace Chunky.Resources
     {
         public uint ChunkId { get; set; }
         public byte[] Data { get; set; }
+        public bool HasPrePadding { get; internal set; }
 
         public string GetResourceTypeName()
         {
@@ -89,7 +126,8 @@ namespace Chunky.Resources
             _resource = new GenericResource
             {
                 ChunkId = chunk.Id,
-                Data = reader.ReadBytes(chunk.Size)
+                Data = reader.ReadBytes(chunk.Size),
+                HasPrePadding = chunk.PreviousChunk?.Id == 0
             };
 
             if (_resource.Data.Length != chunk.Size)
