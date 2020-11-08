@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using Chunky.IO;
 using Chunky.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,9 +14,11 @@ namespace Chunky.Tests.MostWanted
         public static void SetUp(TestContext context)
         {
             using Stream stream = File.OpenRead(@"test-data\mw\GLOBALB.BUN");
-            var chunkBundleLoader = new ChunkBundleLoader();
-            chunkBundleLoader.RegisterResource<MostWantedShaderResource, MostWantedShaderResourceReader>(0x135200);
-            _bundle = chunkBundleLoader.LoadBundle(stream);
+
+            var loadOptions = new BundleLoadOptions();
+            loadOptions.AddChunkMapping<MostWantedShaderResource, MostWantedShaderResourceReader>(0x135200);
+
+            _bundle = Bundle.FromStream(stream, loadOptions);
         }
 
         [TestMethod]

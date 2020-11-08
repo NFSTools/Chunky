@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Chunky
+﻿namespace Chunky
 {
     /// <summary>
     ///     Represents a chunk. A chunk is a unit of data within a bundle.
@@ -38,20 +36,5 @@ namespace Chunky
         ///     Container chunks contain child chunks.
         /// </summary>
         public bool IsContainer => (Id & 0x80000000) == 0x80000000;
-
-        /// <summary>
-        ///     Gets the list of child chunks.
-        /// </summary>
-        public List<Chunk> Children { get; } = new List<Chunk>();
-
-        /// <summary>
-        ///     Gets or sets the previous chunk.
-        /// </summary>
-        public Chunk PreviousChunk { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the next chunk.
-        /// </summary>
-        public Chunk NextChunk { get; set; }
     }
 }

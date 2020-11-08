@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using Chunky.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Chunky.Tests
@@ -12,8 +11,7 @@ namespace Chunky.Tests
         public void TestRead()
         {
             using Stream stream = File.OpenRead(@"test-data\mw\GLOBALB.BUN");
-            var chunkBundleLoader = new ChunkBundleLoader();
-            var bundle = chunkBundleLoader.LoadBundle(stream);
+            var bundle = Bundle.FromStream(stream);
             Assert.IsTrue(bundle.Any());
         }
     }
