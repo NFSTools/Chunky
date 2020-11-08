@@ -8,14 +8,14 @@ namespace Chunky.Resources
 {
     public static class GenericAlignmentHelper
     {
-        private static readonly Dictionary<uint, int> AlignmentMap = new Dictionary<uint, int>();
+        private static readonly Dictionary<uint, uint> AlignmentMap = new Dictionary<uint, uint>();
 
-        public static void SetAlignment(uint chunkId, int alignment)
+        public static void SetAlignment(uint chunkId, uint alignment)
         {
             AlignmentMap[chunkId] = alignment;
         }
 
-        public static int GetAlignment(uint chunkId)
+        public static uint GetAlignment(uint chunkId)
         {
             return AlignmentMap.TryGetValue(chunkId, out var alignment) ? alignment : 0;
         }
@@ -70,6 +70,13 @@ namespace Chunky.Resources
         public void Write(ChunkWriter chunkWriter)
         {
             chunkWriter.BinaryWriter.Write(_resource.Data);
+        }
+
+        public void Align(ChunkWriter chunkWriter)
+        {
+            var alignment = GenericAlignmentHelper.GetAlignment(_resource.ChunkId);
+
+            if (alignment > 0) chunkWriter.AlignmentChunk(alignment);
         }
     }
 
