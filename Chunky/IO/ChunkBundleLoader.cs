@@ -62,7 +62,7 @@ namespace Chunky.IO
                     reader.ProcessChunk(chunkToLoad, binaryReader);
 
                 if (binaryReader.BaseStream.Position != chunkToLoad.EndOffset)
-                    throw new ChunkReaderException(
+                    throw new ChunkBundleException(
                         $"Expected to be at 0x{chunkToLoad.EndOffset:X}, but we are at 0x{binaryReader.BaseStream.Position:X}");
             }
 
@@ -87,10 +87,10 @@ namespace Chunky.IO
                 // read CSize
                 var compressedSize = reader.ReadUInt32();
 
-                if (compressedSize < 12) throw new ChunkReaderException("Invalid size in compressed data block");
+                if (compressedSize < 12) throw new ChunkBundleException("Invalid size in compressed data block");
 
                 if (reader.BaseStream.Position + (compressedSize - 12) > reader.BaseStream.Length)
-                    throw new ChunkReaderException("Overflowing compressed data block");
+                    throw new ChunkBundleException("Overflowing compressed data block");
 
                 // skip to next block
                 reader.BaseStream.Position += compressedSize - 12;
@@ -101,7 +101,7 @@ namespace Chunky.IO
             var size = reader.ReadInt32();
 
             if (reader.BaseStream.Position + size > reader.BaseStream.Length)
-                throw new ChunkReaderException($"Overflowing chunk detected at {reader.BaseStream.Position - 8}.");
+                throw new ChunkBundleException($"Overflowing chunk detected at {reader.BaseStream.Position - 8}.");
 
             var chunk = new Chunk {Id = id, Size = size, Offset = reader.BaseStream.Position - 8};
 

@@ -4,64 +4,65 @@ using System.IO;
 
 namespace Chunky.IO
 {
-    public class ChunkBundleWriter : IDisposable
+    /// <summary>
+    ///     Exposes API for writing chunks to a stream
+    /// </summary>
+    public class ChunkWriter : IDisposable
     {
-        private readonly Bundle _bundle;
         private readonly Stack<Chunk> _chunkStack;
         private readonly Stream _stream;
-        private readonly BinaryWriter _writer;
 
-        public ChunkBundleWriter(Bundle bundle, Stream stream)
+        public ChunkWriter(Stream stream)
         {
-            _bundle = bundle ?? throw new ArgumentNullException(nameof(bundle));
             _stream = stream ?? throw new ArgumentNullException(nameof(stream));
 
             if (!stream.CanWrite) throw new ArgumentException("Stream is not writable", nameof(stream));
 
-            _writer = new BinaryWriter(_stream);
+            BinaryWriter = new BinaryWriter(_stream);
             _chunkStack = new Stack<Chunk>();
         }
+
+        public BinaryWriter BinaryWriter { get; }
 
         public void Dispose()
         {
             _stream?.Dispose();
-            _writer?.Dispose();
+            BinaryWriter?.Dispose();
+
+            if (_chunkStack.Count != 0) throw new ChunkBundleException("Chunk stack must be empty.");
         }
 
-        public void WriteResources()
-        {
-            foreach (var resource in _bundle)
-            {
-                var writer = resource.CreateWriter();
-                var alignment = writer.GetAlignment();
-
-                if (alignment != 0) AlignmentChunk(alignment);
-
-                BeginChunk(writer.GetChunkId());
-                writer.Write(this, _writer);
-                EndChunk();
-            }
-        }
-
+        /// <summary>
+        ///     Push a new chunk onto the chunk stack
+        /// </summary>
+        /// <param name="type">The chunk type ID</param>
+        /// <returns>A new <see cref="Chunk" /> object.</returns>
         public Chunk BeginChunk(uint type)
         {
             var chunk = new Chunk {Id = type, Offset = _stream.Position};
             _chunkStack.Push(chunk);
-            _writer.Write(type);
-            _writer.Write(0);
+            BinaryWriter.Write(type);
+            BinaryWriter.Write(0);
             return chunk;
         }
 
+        /// <summary>
+        ///     Pop a chunk from the chunk stack and finalize it.
+        /// </summary>
         public void EndChunk()
         {
             var chunk = _chunkStack.Pop();
             chunk.Size = (int) (_stream.Position - chunk.DataOffset);
             _stream.Position = chunk.Offset + 4;
-            _writer.Write(chunk.Size);
+            BinaryWriter.Write(chunk.Size);
             _stream.Position = chunk.EndOffset;
         }
 
-        public void AlignmentChunk(int boundary)
+        /// <summary>
+        ///     Generate an alignment (null-filled) chunk to align the stream to the given byte boundary.
+        /// </summary>
+        /// <param name="boundary">The desired alignment</param>
+        public void AlignmentChunk(uint boundary)
         {
             if (_stream.Position % boundary != 0)
             {

@@ -18,13 +18,13 @@ namespace Chunky.Tests.MostWanted
             return 0x135200;
         }
 
-        public void Write(ChunkBundleWriter bundleWriter, BinaryWriter binaryWriter)
+        public void Write(ChunkWriter chunkWriter)
         {
-            binaryWriter.Write(1);
-            binaryWriter.Write(3);
-            binaryWriter.Write(3);
-            binaryWriter.Write(0x13371337);
-            binaryWriter.Write(0);
+            chunkWriter.BinaryWriter.Write(1);
+            chunkWriter.BinaryWriter.Write(3);
+            chunkWriter.BinaryWriter.Write(3);
+            chunkWriter.BinaryWriter.Write(0x13371337);
+            chunkWriter.BinaryWriter.Write(0);
 
             var nameBytes = new char[0x1C];
             nameBytes[0] = 'H';
@@ -32,9 +32,9 @@ namespace Chunky.Tests.MostWanted
             nameBytes[2] = 'L';
             nameBytes[3] = 'L';
             nameBytes[4] = 'O';
-            binaryWriter.Write(nameBytes);
+            chunkWriter.BinaryWriter.Write(nameBytes);
             for (var i = 0; i < 0x78; i++)
-                binaryWriter.Write((byte) i);
+                chunkWriter.BinaryWriter.Write((byte) i);
         }
     }
 

@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Chunky.IO
 {
     [Serializable]
-    public class ChunkReaderException : Exception
+    public class ChunkBundleException : Exception
     {
         //
         // For guidelines regarding the creation of new exception types, see
@@ -13,19 +13,19 @@ namespace Chunky.IO
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
         //
 
-        public ChunkReaderException()
+        public ChunkBundleException()
         {
         }
 
-        public ChunkReaderException(string message) : base(message)
+        public ChunkBundleException(string message) : base(message)
         {
         }
 
-        public ChunkReaderException(string message, Exception inner) : base(message, inner)
+        public ChunkBundleException(string message, Exception inner) : base(message, inner)
         {
         }
 
-        protected ChunkReaderException(
+        protected ChunkBundleException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {

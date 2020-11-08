@@ -67,19 +67,9 @@ namespace Chunky.Resources
             return _resource.ChunkId;
         }
 
-        public int GetAlignment()
+        public void Write(ChunkWriter chunkWriter)
         {
-            var result = GenericAlignmentHelper.GetAlignment(_resource.ChunkId);
-
-            if (result == 0 && _resource.HasPrePadding)
-                throw new UndefinedAlignmentException($"Alignment undefined for chunk: 0x{_resource.ChunkId:X8}");
-
-            return result;
-        }
-
-        public void Write(ChunkBundleWriter bundleWriter, BinaryWriter binaryWriter)
-        {
-            binaryWriter.Write(_resource.Data);
+            chunkWriter.BinaryWriter.Write(_resource.Data);
         }
     }
 
@@ -90,7 +80,6 @@ namespace Chunky.Resources
     {
         public uint ChunkId { get; set; }
         public byte[] Data { get; set; }
-        public bool HasPrePadding { get; internal set; }
 
         public string GetResourceTypeName()
         {
@@ -126,8 +115,7 @@ namespace Chunky.Resources
             _resource = new GenericResource
             {
                 ChunkId = chunk.Id,
-                Data = reader.ReadBytes(chunk.Size),
-                HasPrePadding = chunk.PreviousChunk?.Id == 0
+                Data = reader.ReadBytes(chunk.Size)
             };
 
             if (_resource.Data.Length != chunk.Size)

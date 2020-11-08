@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Chunky.IO;
+﻿using Chunky.IO;
 
 namespace Chunky.Resources
 {
@@ -17,17 +16,16 @@ namespace Chunky.Resources
         /// <summary>
         ///     Writes the resource data to a binary stream.
         /// </summary>
-        /// <param name="bundleWriter">The chunk bundle writer</param>
-        /// <param name="binaryWriter">The binary stream writer</param>
-        void Write(ChunkBundleWriter bundleWriter, BinaryWriter binaryWriter);
+        /// <param name="chunkWriter">The chunk bundle writer</param>
+        void Write(ChunkWriter chunkWriter);
 
         /// <summary>
-        ///     Gets the required chunk alignment of the resource type.
+        ///     Align the bundle output stream as needed
         /// </summary>
-        /// <returns>The required alignment</returns>
-        int GetAlignment()
+        /// <param name="chunkWriter">The chunk bundle writer</param>
+        void Align(ChunkWriter chunkWriter)
         {
-            return 0;
+            // No-op by default
         }
     }
 }

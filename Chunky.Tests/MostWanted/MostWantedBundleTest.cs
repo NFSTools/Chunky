@@ -33,8 +33,7 @@ namespace Chunky.Tests.MostWanted
         {
             using Stream stream = File.Open(@"simple-test.bun", FileMode.Create, FileAccess.Write);
             var bundle = new Bundle(new List<IResource> {new MostWantedShaderResource {Name = "TESTING1234"}});
-            using var chunkBundleWriter = new ChunkBundleWriter(bundle, stream);
-            chunkBundleWriter.WriteResources();
+            bundle.WriteToStream(stream);
         }
 
         [TestMethod]
@@ -43,8 +42,7 @@ namespace Chunky.Tests.MostWanted
             GenericAlignmentHelper.SetAlignment(0xB3300000, 0x80);
 
             using Stream stream = File.Open(@"rewrite-test.bun", FileMode.Create, FileAccess.Write);
-            using var chunkBundleWriter = new ChunkBundleWriter(_bundle, stream);
-            chunkBundleWriter.WriteResources();
+            _bundle.WriteToStream(stream);
         }
     }
 }
