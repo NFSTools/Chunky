@@ -105,22 +105,15 @@ namespace Chunky
                         // Make sure we're not already within a container chunk.
                         // Children of containers call back to the container handler.
                         if (!recursing)
-                        {
                             resourceReader = activatorMap.TryGetValue(chunk.Id, out var activator)
                                 ? activator()
                                 : new GenericResourceReader();
 
-                            if (chunk.IsContainer)
-                                ProcessChunks(chunk.EndOffset, true, resourceReader);
-                            else
-                                resourceReader.ProcessChunk(chunk, chunkReader.BinaryReader);
-                        }
-                        else
-                        {
-                            if (resourceReader == null) throw new ArgumentNullException(nameof(resourceReader));
+                        if (resourceReader == null) throw new ArgumentNullException(nameof(resourceReader));
 
-                            resourceReader.ProcessChunk(chunk, chunkReader.BinaryReader);
-                        }
+                        resourceReader.ProcessChunk(chunk, chunkReader.BinaryReader);
+                        if (chunk.IsContainer)
+                            ProcessChunks(chunk.EndOffset, true, resourceReader);
 
                         resources.Add(resourceReader.GetResource());
                     }
