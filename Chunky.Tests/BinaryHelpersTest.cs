@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.IO;
+using System.Runtime.InteropServices;
 using Chunky.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -30,7 +31,7 @@ namespace Chunky.Tests
         };
 
         [TestMethod]
-        public void TestUnMarshal()
+        public void TestBufferUnmarshal()
         {
             byte[] inData =
             {
@@ -53,10 +54,27 @@ namespace Chunky.Tests
         }
 
         [TestMethod]
-        public void TestRoundTrip()
+        public void TestBufferRoundTrip()
         {
             var marshalled = BinaryHelpers.MarshalStruct(BenchmarkStructure);
             var unmarshalledStructure = BinaryHelpers.BufferToStructure<SimpleStructure>(marshalled);
+
+            Assert.AreEqual(BenchmarkStructure.StringValue, unmarshalledStructure.StringValue);
+            Assert.AreEqual(BenchmarkStructure.IntValue, unmarshalledStructure.IntValue);
+            Assert.AreEqual(BenchmarkStructure.FloatValue, unmarshalledStructure.FloatValue);
+            CollectionAssert.AreEqual(BenchmarkStructure.ByteArray, unmarshalledStructure.ByteArray);
+        }
+
+        [TestMethod]
+        public void TestStreamRoundTrip()
+        {
+            using var ms = new MemoryStream();
+            BinaryHelpers.WriteStruct(ms, BenchmarkStructure);
+            ms.Position = 0;
+
+            Assert.AreEqual(ms.Length, Marshal.SizeOf<SimpleStructure>());
+
+            var unmarshalledStructure = BinaryHelpers.ReadStruct<SimpleStructure>(ms);
 
             Assert.AreEqual(BenchmarkStructure.StringValue, unmarshalledStructure.StringValue);
             Assert.AreEqual(BenchmarkStructure.IntValue, unmarshalledStructure.IntValue);
