@@ -92,12 +92,14 @@ namespace Chunky
                 p => ReflectionHelpers.GetActivator<IResourceReader>(p.Value.GetConstructor(Type.EmptyTypes)));
 
             var chunkReader = new ChunkReader(stream);
-
-            return new Bundle(ProcessChunks(chunkReader, stream, stream.Length, activatorMap).ToList());
+            var resources = new List<IResource>();
+            ProcessChunks(chunkReader, stream, stream.Length, activatorMap, resources);
+            return new Bundle(resources);
         }
 
-        private static IEnumerable<IResource> ProcessChunks(ChunkReader chunkReader, Stream stream, long readLength,
-            Dictionary<uint, ObjectActivator<IResourceReader>> activators,
+        private static void ProcessChunks(ChunkReader chunkReader, Stream stream, long readLength,
+            IReadOnlyDictionary<uint, ObjectActivator<IResourceReader>> activators,
+            ICollection<IResource> resources,
             IResourceReader resourceReader = null)
         {
             var endPosition = stream.Position + readLength;
@@ -119,13 +121,13 @@ namespace Chunky
                             : new GenericResourceReader();
 
                         if (activatorExists && chunk.IsContainer)
-                            ProcessChunks(chunkReader, stream, chunk.Size, activators, newReader);
+                            ProcessChunks(chunkReader, stream, chunk.Size, activators, resources, newReader);
                         else
                             newReader.ProcessChunk(chunk, chunkReader.BinaryReader);
 
                         var resource = newReader.GetResource();
                         Debug.Assert(resource != null, "resource != null");
-                        yield return resource;
+                        resources.Add(resource);
                     }
                     else
                     {
