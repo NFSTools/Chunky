@@ -1,52 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
 using Chunky.IO;
 
 namespace Chunky.Resources
 {
+    /// <summary>
+    ///     Allows the developer to specify alignments for chunk types
+    ///     that are handled by the <see cref="GenericResourceReader" />.
+    /// </summary>
     public static class GenericAlignmentHelper
     {
         private static readonly Dictionary<uint, uint> AlignmentMap = new Dictionary<uint, uint>();
 
-        public static void SetAlignment(uint chunkId, uint alignment)
-        {
-            AlignmentMap[chunkId] = alignment;
-        }
-
+        /// <summary>
+        ///     Retrieves a chunk ID's mapped alignment.
+        /// </summary>
+        /// <param name="chunkId">The chunk ID.</param>
+        /// <returns>The chunk alignment.</returns>
+        /// <remarks>If no mapping is found, returns 0.</remarks>
         public static uint GetAlignment(uint chunkId)
         {
             return AlignmentMap.TryGetValue(chunkId, out var alignment) ? alignment : 0;
         }
-    }
 
-    [Serializable]
-    public class UndefinedAlignmentException : Exception
-    {
-        //
-        // For guidelines regarding the creation of new exception types, see
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpgenref/html/cpconerrorraisinghandlingguidelines.asp
-        // and
-        //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
-        //
-
-        public UndefinedAlignmentException()
+        /// <summary>
+        ///     Adds a chunk alignment mapping.
+        /// </summary>
+        /// <param name="chunkId">The chunk ID.</param>
+        /// <param name="alignment">The chunk alignment.</param>
+        public static void SetAlignment(uint chunkId, uint alignment)
         {
-        }
-
-        public UndefinedAlignmentException(string message) : base(message)
-        {
-        }
-
-        public UndefinedAlignmentException(string message, Exception inner) : base(message, inner)
-        {
-        }
-
-        protected UndefinedAlignmentException(
-            SerializationInfo info,
-            StreamingContext context) : base(info, context)
-        {
+            AlignmentMap[chunkId] = alignment;
         }
     }
 
@@ -57,21 +41,28 @@ namespace Chunky.Resources
     {
         private readonly GenericResource _resource;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="GenericResourceWriter" /> class.
+        /// </summary>
+        /// <param name="resource"></param>
         public GenericResourceWriter(GenericResource resource)
         {
             _resource = resource;
         }
 
+        /// <inheritdoc />
         public uint GetChunkId()
         {
             return _resource.ChunkId;
         }
 
+        /// <inheritdoc />
         public void Write(ChunkWriter chunkWriter)
         {
             chunkWriter.BinaryWriter.Write(_resource.Data);
         }
 
+        /// <inheritdoc />
         public void Align(ChunkWriter chunkWriter)
         {
             var alignment = GenericAlignmentHelper.GetAlignment(_resource.ChunkId);
@@ -85,14 +76,23 @@ namespace Chunky.Resources
     /// </summary>
     public class GenericResource : IResource
     {
+        /// <summary>
+        ///     Gets or sets the ID of the chunk represented by the resource.
+        /// </summary>
         public uint ChunkId { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the data of the chunk represented by the resource.
+        /// </summary>
         public byte[] Data { get; set; }
 
+        /// <inheritdoc />
         public string GetResourceTypeName()
         {
             return "UNKNOWN";
         }
 
+        /// <inheritdoc />
         public IResourceWriter CreateWriter()
         {
             return new GenericResourceWriter(this);
@@ -112,11 +112,13 @@ namespace Chunky.Resources
             return GetResource();
         }
 
+        /// <inheritdoc />
         public GenericResource GetResource()
         {
             return _resource;
         }
 
+        /// <inheritdoc />
         public void ProcessChunk(Chunk chunk, BinaryReader reader)
         {
             _resource = new GenericResource
