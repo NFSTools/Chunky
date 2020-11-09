@@ -27,6 +27,7 @@ namespace Chunky
             _resources = resources ?? throw new ArgumentNullException(nameof(resources));
         }
 
+        /// <inheritdoc />
         public IEnumerator<IResource> GetEnumerator()
         {
             return _resources.GetEnumerator();
