@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Chunky.IO;
@@ -91,41 +92,49 @@ namespace Chunky
                 p => ReflectionHelpers.GetActivator<IResourceReader>(p.Value.GetConstructor(Type.EmptyTypes)));
 
             var chunkReader = new ChunkReader(stream);
-            var resources = new List<IResource>();
 
-            void ProcessChunks(long endOffset, bool recursing = false, IResourceReader resourceReader = null)
+            return new Bundle(ProcessChunks(chunkReader, stream, stream.Length, activatorMap).ToList());
+        }
+
+        private static IEnumerable<IResource> ProcessChunks(ChunkReader chunkReader, Stream stream, long readLength,
+            Dictionary<uint, ObjectActivator<IResourceReader>> activators,
+            IResourceReader resourceReader = null)
+        {
+            var endPosition = stream.Position + readLength;
+
+            while (stream.Position < endPosition)
             {
-                while (stream.Position < endOffset)
+                var chunk = chunkReader.NextChunk();
+
+                // Make sure we're dealing with a data chunk (ID 0 = padding)
+                if (chunk.Id != 0)
                 {
-                    var chunk = chunkReader.NextChunk();
-
-                    // Only process non-padding chunks
-                    if (chunk.Id != 0)
+                    // resourceReader will be null if we're at the top level
+                    if (resourceReader == null)
                     {
-                        // Make sure we're not already within a container chunk.
-                        // Children of containers call back to the container handler.
-                        if (!recursing)
-                            resourceReader = activatorMap.TryGetValue(chunk.Id, out var activator)
-                                ? activator()
-                                : new GenericResourceReader();
+                        // Create resource reader and recurse
+                        var activatorExists = activators.TryGetValue(chunk.Id, out var activator);
+                        var newReader = activatorExists
+                            ? activator()
+                            : new GenericResourceReader();
 
-                        if (resourceReader == null) throw new ArgumentNullException(nameof(resourceReader));
+                        if (activatorExists && chunk.IsContainer)
+                            ProcessChunks(chunkReader, stream, chunk.Size, activators, newReader);
+                        else
+                            newReader.ProcessChunk(chunk, chunkReader.BinaryReader);
 
-                        resourceReader.ProcessChunk(chunk, chunkReader.BinaryReader);
-                        if (chunk.IsContainer)
-                            ProcessChunks(chunk.EndOffset, true, resourceReader);
-
-                        resources.Add(resourceReader.GetResource());
+                        var resource = newReader.GetResource();
+                        Debug.Assert(resource != null, "resource != null");
+                        yield return resource;
                     }
-
-                    // Jump to the end of the chunk
-                    stream.Position = chunk.EndOffset;
+                    else
+                    {
+                        resourceReader.ProcessChunk(chunk, chunkReader.BinaryReader);
+                    }
                 }
+
+                stream.Position = chunk.EndOffset;
             }
-
-            ProcessChunks(stream.Length);
-
-            return new Bundle(resources);
         }
     }
 }

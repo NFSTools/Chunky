@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Chunky.Resources;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -44,6 +45,14 @@ namespace Chunky.Tests.MostWanted
 
             using Stream stream = File.Open(@"rewrite-test.bun", FileMode.Create, FileAccess.Write);
             _bundle.WriteToStream(stream);
+        }
+
+        [TestMethod]
+        public void TestDuplicateResourceBugFix()
+        {
+            using Stream stream = File.OpenRead(@"test-data\mw\STREAML2RA_154.BUN");
+            var bundle = Bundle.FromStream(stream, new BundleLoadOptions());
+            Assert.AreEqual(1, bundle.FindResourcesByType<GenericResource>().Count(r => r.ChunkId == 0xB3300000));
         }
     }
 }
