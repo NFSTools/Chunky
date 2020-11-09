@@ -132,7 +132,10 @@ namespace Chunky
                     }
                     else
                     {
-                        resourceReader.ProcessChunk(chunk, chunkReader.BinaryReader);
+                        if (chunk.IsContainer)
+                            ProcessChunks(chunkReader, stream, chunk.Size, activators, resources, resourceReader);
+                        else
+                            resourceReader.ProcessChunk(chunk, chunkReader.BinaryReader);
                     }
                 }
 
