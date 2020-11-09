@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Chunky.Utils
@@ -29,6 +30,18 @@ namespace Chunky.Utils
         {
             var size = Marshal.SizeOf<T>();
             var buffer = ReadBytesRequired(stream, size);
+            return BufferToStructure<T>(buffer);
+        }
+
+        /// <summary>
+        ///     Converts a byte array to a structure instance.
+        /// </summary>
+        /// <param name="buffer">The byte array to unmarshal.</param>
+        /// <typeparam name="T">The structure type.</typeparam>
+        /// <returns>A new structure of type <typeparamref name="T" />.</returns>
+        public static T BufferToStructure<T>(byte[] buffer) where T : struct
+        {
+            Debug.Assert(buffer.Length == Marshal.SizeOf<T>(), "buffer.Length == Marshal.SizeOf<T>()");
             using var handle = new DisposableGcHandle(buffer, GCHandleType.Pinned);
 
             return Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
