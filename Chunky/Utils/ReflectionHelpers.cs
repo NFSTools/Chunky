@@ -3,14 +3,28 @@ using System.Reflection;
 
 namespace Chunky.Utils
 {
+    /// <summary>
+    ///     Invokes a constructor of type <typeparamref name="T" /> with the given arguments,
+    ///     and returns the result.
+    /// </summary>
+    /// <param name="args">The arguments to pass to the constructor</param>
+    /// <typeparam name="T">The object type.</typeparam>
     public delegate T ObjectActivator<out T>(params object[] args);
 
+    /// <summary>
+    ///     Exposes reflection-related helper functions.
+    /// </summary>
     public static class ReflectionHelpers
     {
+        /// <summary>
+        ///     Constructs a new <see cref="ObjectActivator{T}" /> for the given type constructor.
+        /// </summary>
+        /// <param name="ctor">The constructor to build an activator for.</param>
+        /// <typeparam name="T">The desired activator return type.</typeparam>
+        /// <returns>A new activator in the form of a delegate function.</returns>
         public static ObjectActivator<T> GetActivator<T>
             (ConstructorInfo ctor)
         {
-            var type = ctor.DeclaringType;
             var paramsInfo = ctor.GetParameters();
 
             //create a single param of type object[]
