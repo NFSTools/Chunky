@@ -1,7 +1,7 @@
 ﻿using System.IO;
-using Chunky.Resources;
+using Chunky.IO;
 
-namespace Chunky
+namespace Chunky.Resources
 {
     /// <summary>
     ///     Exposes an API for reading resources from chunks.

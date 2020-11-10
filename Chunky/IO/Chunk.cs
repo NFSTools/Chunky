@@ -1,4 +1,4 @@
-﻿namespace Chunky
+﻿namespace Chunky.IO
 {
     /// <summary>
     ///     Represents a chunk. A chunk is a unit of data within a bundle.
