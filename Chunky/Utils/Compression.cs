@@ -3,14 +3,29 @@ using System.Runtime.InteropServices;
 
 namespace Chunky.Utils
 {
+    /// <summary>
+    ///     Exposes functions to interface with NativeLibrary.dll
+    /// </summary>
     public static class Compression
     {
+        /// <summary>
+        ///     Decompresses data from a compressed buffer.
+        /// </summary>
+        /// <param name="compressedData">The compressed (source) data.</param>
+        /// <param name="decompressedData">The destination buffer.</param>
+        /// <returns>The number of bytes written to the destination.</returns>
         public static int Decompress(byte[] compressedData, byte[] decompressedData)
         {
             return _internal_decompress(compressedData, compressedData.Length, decompressedData,
                 decompressedData.Length);
         }
 
+        /// <summary>
+        ///     Compresses data into a buffer.
+        /// </summary>
+        /// <param name="uncompressedData">The uncompressed (source) data.</param>
+        /// <param name="compressedData">The destination buffer.</param>
+        /// <returns>The number of bytes written to the destination.</returns>
         public static int Compress(byte[] uncompressedData, ref byte[] compressedData)
         {
             var size = _internal_compress(uncompressedData, uncompressedData.Length, compressedData);
