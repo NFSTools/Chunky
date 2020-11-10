@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Chunky.Utils;
 
 namespace Chunky.IO
 {
@@ -77,12 +78,7 @@ namespace Chunky.IO
             if (_stream.Position % boundary != 0)
             {
                 BeginChunk(0);
-                if (_stream.Position % boundary != 0)
-                {
-                    var offset = boundary - _stream.Position % boundary;
-                    _stream.Seek(offset, SeekOrigin.Current);
-                }
-
+                BinaryHelpers.AlignStream(_stream, boundary);
                 EndChunk();
             }
         }

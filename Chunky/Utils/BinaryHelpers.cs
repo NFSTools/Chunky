@@ -116,5 +116,39 @@ namespace Chunky.Utils
         {
             stream.Write(MarshalStruct(data));
         }
+
+        /// <summary>
+        ///     Aligns a stream to a byte boundary.
+        /// </summary>
+        /// <param name="reader">The binary stream to align.</param>
+        /// <param name="boundary">The desired byte alignment.</param>
+        public static void AlignStream(BinaryReader reader, uint boundary)
+        {
+            AlignStream(reader.BaseStream, boundary);
+        }
+
+        /// <summary>
+        ///     Aligns a stream to a byte boundary.
+        /// </summary>
+        /// <param name="writer">The binary stream to align.</param>
+        /// <param name="boundary">The desired byte alignment.</param>
+        public static void AlignStream(BinaryWriter writer, uint boundary)
+        {
+            AlignStream(writer.BaseStream, boundary);
+        }
+
+        /// <summary>
+        ///     Aligns a stream to a byte boundary.
+        /// </summary>
+        /// <param name="stream">The binary stream to align.</param>
+        /// <param name="boundary">The desired byte alignment.</param>
+        public static void AlignStream(Stream stream, uint boundary)
+        {
+            if (stream.Position % boundary != 0)
+            {
+                var padLength = boundary - stream.Position % boundary;
+                stream.Write(new byte[padLength]);
+            }
+        }
     }
 }
