@@ -147,7 +147,10 @@ namespace Chunky.Utils
             if (stream.Position % boundary != 0)
             {
                 var padLength = boundary - stream.Position % boundary;
-                stream.Write(new byte[padLength]);
+                if (stream.CanWrite)
+                    stream.Write(new byte[padLength]);
+                else
+                    stream.Position += padLength;
             }
         }
     }
