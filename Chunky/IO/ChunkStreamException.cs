@@ -3,8 +3,11 @@ using System.Runtime.Serialization;
 
 namespace Chunky.IO
 {
+    /// <summary>
+    ///     Thrown when an error occurs in chunk processing.
+    /// </summary>
     [Serializable]
-    public class ChunkBundleException : Exception
+    public class ChunkStreamException : Exception
     {
         //
         // For guidelines regarding the creation of new exception types, see
@@ -13,19 +16,23 @@ namespace Chunky.IO
         //    http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dncscol/html/csharp07192001.asp
         //
 
-        public ChunkBundleException()
+        /// <inheritdoc />
+        public ChunkStreamException()
         {
         }
 
-        public ChunkBundleException(string message) : base(message)
+        /// <inheritdoc />
+        public ChunkStreamException(string message) : base(message)
         {
         }
 
-        public ChunkBundleException(string message, Exception inner) : base(message, inner)
+        /// <inheritdoc />
+        public ChunkStreamException(string message, Exception inner) : base(message, inner)
         {
         }
 
-        protected ChunkBundleException(
+        /// <inheritdoc />
+        protected ChunkStreamException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {
