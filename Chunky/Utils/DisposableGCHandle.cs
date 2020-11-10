@@ -5,16 +5,11 @@ using System.Security.Permissions;
 namespace Chunky.Utils
 {
     [SecurityPermissionAttribute(SecurityAction.InheritanceDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-    public class DisposableGcHandle : IDisposable
+    internal sealed class DisposableGcHandle : IDisposable
     {
         private GCHandle _handle;
 
-        public DisposableGcHandle(object value)
-        {
-            _handle = GCHandle.Alloc(value, GCHandleType.Normal);
-        }
-
-        public DisposableGcHandle(object value, GCHandleType type)
+        public DisposableGcHandle(object value, GCHandleType type = GCHandleType.Normal)
         {
             _handle = GCHandle.Alloc(value, type);
         }
@@ -43,7 +38,7 @@ namespace Chunky.Utils
 
         #region DisposePattern
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing)
                 if (_handle.IsAllocated)
